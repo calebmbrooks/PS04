@@ -41,6 +41,7 @@ model4_formula <- as.formula("Balance ~ Income + Limit + Rating")
 model5_formula <- as.formula("Balance ~ Income + Limit + Rating + Age")
 model6_formula <- as.formula("Balance ~ Income + Limit + Rating + Age + Cards")
 model7_formula <- as.formula("Balance ~ Income + Limit + Rating + Age + Cards + Education")
+
 ```
 
 ... where `credit_train` is defined below, along with `credit_test`.
@@ -51,19 +52,86 @@ credit_train <- credit %>%
   sample_n(20)
 credit_test <- credit %>% 
   anti_join(credit_train, by="ID")
+
+#As linear regression
+lm1 <- lm(Balance ~ 1, data = credit_train)
+lm2 <- lm(Balance ~ Income, data = credit_train)
+lm3 <- lm(Balance ~ Income + Limit, data = credit_train)
+lm4 <- lm(Balance ~ Income + Limit + Rating, data = credit_train)
+lm5 <- lm(Balance ~ Income + Limit + Rating + Age, data = credit_train)
+lm6 <- lm(Balance ~ Income + Limit + Rating + Age + Cards, data = credit_train)
+lm7 <- lm(Balance ~ Income + Limit + Rating + Age + Cards + Education, data = credit_train)
+
+#getting rmse for all linear regression models in the set, with each sequential model using one more predictor than the last. Making predictions from TRAINING data
+lm1rmse <- (predict(lm1, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm2rmse <- (predict(lm2, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm3rmse <- (predict(lm3, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm4rmse <- (predict(lm4, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm5rmse <- (predict(lm5, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm6rmse <- (predict(lm6, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm7rmse <- (predict(lm7, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+#concatinating rmse values into a single vector for plotting
+RMSE_train <- c(lm1rmse,lm2rmse,lm3rmse,lm4rmse,lm5rmse,lm6rmse,lm7rmse)
+
+#now predicting from TESTING data
+lm1rmse <- (predict(lm1, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm2rmse <- (predict(lm2, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm3rmse <- (predict(lm3, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm4rmse <- (predict(lm4, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm5rmse <- (predict(lm5, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm6rmse <- (predict(lm6, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm7rmse <- (predict(lm7, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+#again, concatinating results
+RMSE_test <- c(lm1rmse,lm2rmse,lm3rmse,lm4rmse,lm5rmse,lm6rmse,lm7rmse)
 ```
 
 
 # RMSE vs number of coefficients
 
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
-# Placeholder vectors of length 7. For now, I've filled them with arbitrary 
-# values; you will fill these in
-RMSE_train <- runif(n=7)
-RMSE_test <- runif(n=7)
 
-
-# Do your work here:
 
 
 # Save results in a data frame. Note this data frame is in wide format.
@@ -92,7 +160,9 @@ ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
 
 # Interpret the graph
 
-Compare and contrast the two curves and hypothesize as to the root cause of any differences.
+As one might intuit, predictions from the data on which the model was trained are more accurate - the models were arrived at by optimizing (minimizing) mse relative to the training data.
+
+Both curves show a dramatic increase in accuracy when both income and limit are used as predictors, but strangely the RMSE values begin to increase for test-data predictions from subsequent models, whereas on training data they continue to decrease. This could indicate an interaction between the predictors (introduced AFTER credit cart limit, particularly Age and Education given that the increase in rmse for those models is more visualy dramatic) which is accounted for when predicting from the training data, but not when predicting out-of-sample
 
 
 
@@ -103,5 +173,107 @@ from `credit` instead of 20. Now compare and contrast this graph with the
 one above and hypothesize as to the root cause of any differences.
 
 ```{r, echo=FALSE}
+set.seed(79)
+credit_train <- credit %>% 
+  sample_n(380)
+credit_test <- credit %>% 
+  anti_join(credit_train, by="ID")
 
+lm1 <- lm(Balance ~ 1, data = credit_train)
+lm2 <- lm(Balance ~ Income, data = credit_train)
+lm3 <- lm(Balance ~ Income + Limit, data = credit_train)
+lm4 <- lm(Balance ~ Income + Limit + Rating, data = credit_train)
+lm5 <- lm(Balance ~ Income + Limit + Rating + Age, data = credit_train)
+lm6 <- lm(Balance ~ Income + Limit + Rating + Age + Cards, data = credit_train)
+lm7 <- lm(Balance ~ Income + Limit + Rating + Age + Cards + Education, data = credit_train)
+
+#getting rmse for all linear regressions
+lm1rmse <- (predict(lm1, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm2rmse <- (predict(lm2, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm3rmse <- (predict(lm3, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm4rmse <- (predict(lm4, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm5rmse <- (predict(lm5, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm6rmse <- (predict(lm6, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+lm7rmse <- (predict(lm7, credit_train)-credit_train$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_train)) %>% 
+  sqrt
+RMSE_train <- c(lm1rmse,lm2rmse,lm3rmse,lm4rmse,lm5rmse,lm6rmse,lm7rmse)
+
+lm1rmse <- (predict(lm1, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm2rmse <- (predict(lm2, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm3rmse <- (predict(lm3, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm4rmse <- (predict(lm4, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm5rmse <- (predict(lm5, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm6rmse <- (predict(lm6, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+lm7rmse <- (predict(lm7, credit_test)-credit_test$Balance)^2 %>% 
+  sum %>% 
+  `/` (nrow(credit_test)) %>% 
+  sqrt
+RMSE_test <- c(lm1rmse,lm2rmse,lm3rmse,lm4rmse,lm5rmse,lm6rmse,lm7rmse)
 ```
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+
+
+# Save results in a data frame. Note this data frame is in wide format.
+results <- data_frame(
+  num_coefficients = 1:7,
+  RMSE_train,
+  RMSE_test
+) 
+
+# Some cleaning of results
+results <- results %>% 
+  # More intuitive names:
+  rename(
+    `Training data` = RMSE_train,
+    `Test data` = RMSE_test
+  ) %>% 
+  # Convert results data frame to "tidy" data format i.e. long format, so that we
+  # can ggplot it
+  gather(type, RMSE, -num_coefficients)
+
+ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
+  geom_line() + 
+  labs(x="# of coefficients", y="RMSE", col="Data used to evaluate \nperformance of fitted model")
+```
+
+In this case, the two rmse curves are much closer. This could be attributed to the models having been trained on a much larger dataset, and thus being better at predicting out-of-sample.

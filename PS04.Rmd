@@ -175,7 +175,7 @@ one above and hypothesize as to the root cause of any differences.
 ```{r, echo=FALSE}
 set.seed(79)
 credit_train <- credit %>% 
-  sample_n(380)
+  sample_n(380) #sample size for selecting training dataset now set to 380
 credit_test <- credit %>% 
   anti_join(credit_train, by="ID")
 

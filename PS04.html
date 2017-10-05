@@ -349,7 +349,7 @@ ggplot(results, aes(x=num_coefficients, y=RMSE, col=type)) +
 <div id="interpret-the-graph" class="section level1">
 <h1>Interpret the graph</h1>
 <p>As one might intuit, predictions from the data on which the model was trained are more accurate - the models were arrived at by optimizing (minimizing) mse relative to the training data.</p>
-<p>Both curves show a dramatic increase in accuracy when both income and limit are used as predictors, but strangely the RMSE values begin to increase for test-data predictions from subsequent models, whereas on training data they continue to decrease. This could indicate an interaction between the predictors (introduced AFTER credit cart limit, particularly Age and Education given that the increase in rmse for those models is more visualy dramatic) which is accounted for when predicting from the training data, but not when predicting out-of-sample</p>
+<p>Both curves show a dramatic increase in accuracy when both income and limit are used as predictors, but strangely the RMSE values begin to increase for test-data predictions from subsequent models, whereas on training data they continue to decrease. This can likely be attributed to overfitting - i.e. that as the model flexability goes up, the specificity of tailoring to the training data results in less out-of-sample predictive power.</p>
 </div>
 <div id="bonus" class="section level1">
 <h1>Bonus</h1>
